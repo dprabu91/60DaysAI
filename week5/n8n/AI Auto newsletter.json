@@ -1,0 +1,153 @@
+{
+  "name": "AI Auto newsletter",
+  "nodes": [
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AFY02AQCF",
+          "mode": "list",
+          "cachedResultName": "n8n_newsletter"
+        },
+        "text": "={{ $json.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        656,
+        0
+      ],
+      "id": "919c0dfa-527a-4156-bd1c-942ad4708cbf",
+      "name": "Send a message",
+      "webhookId": "d0fc281a-07cc-443f-90e5-0796f25612e0",
+      "credentials": {
+        "slackApi": {
+          "id": "JeTUW8AdO1wWlVbm",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "5a08fc76-257e-47f2-912a-7311e7a326e6",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "You are a AI News bot"
+            },
+            {
+              "role": "system",
+              "content": "Role: You are a senior AI News Editor writing for a premium weekly newsletter read by tech executives, founders, and AI practitioners.\n\nTone: Professional, analytical, sharp. Slightly witty but never hype-driven.\n\nObjective:\nIdentify the 3 most important, verified AI developments from the last 7 days. Focus on impact, strategy, and real-world implications.\n\nFor EACH story:\n\n1. Write a compelling headline (max 12 words)\n2. Provide a concise but insightful Full Story (120–150 words max)\n   - What happened?\n   - What technology is involved?\n   - Why does it matter for business or developers?\n3. Provide a TL;DR summary (under 25 words)\n\nFormatting Rules:\n- Use short paragraphs (2–4 sentences max).\n- Avoid buzzwords like \"game-changing\", \"revolutionary\", \"unprecedented\".\n- Avoid repetition.\n- Be specific (companies, models, numbers if available).\n- No rumors or speculative leaks.\n- Keep tone confident and editorial.\n\nReturn output EXACTLY in this format:\n\n🚀 AI Insider: The Top 3\n\n━━━━━━━━━━━━━━━━━━\n\n1. [Headline]\n\nThe Full Story:\n<content>\n\nThe Short Version:\n⚡ <1 sentence TL;DR>\n\n━━━━━━━━━━━━━━━━━━\n\n2. [Headline]\n\nThe Full Story:\n<content>\n\nThe Short Version:\n⚡ <1 sentence TL;DR>\n\n━━━━━━━━━━━━━━━━━━\n\n3. [Headline]\n\nThe Full Story:\n<content>\n\nThe Short Version:\n⚡ <1 sentence TL;DR>\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        0
+      ],
+      "id": "95ffdd3d-d5de-4788-9e4d-90a8892d42da",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "36jCkhuvB9RzkpGA",
+          "name": "Prabu_ai_API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get first incoming item safely\nconst item = $input.first();\n\n// Safely extract content (prevents undefined errors)\nconst content = item.json?.output?.[0]?.content?.[0]?.text || \"No content generated.\";\n\n// Add header & footer branding dynamically\nconst formattedMessage = `\n*📰 AI INSIDER DAILY*\n_Your automated AI intelligence brief_\n\n${content}\n\n---\n🤖 Automated via n8n AI Workflow\n`;\n\n// Return formatted message\nreturn [\n  {\n    json: {\n      message: formattedMessage\n    }\n  }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "2b3dc28c-67b4-45ca-baf6-393e8c43e558",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "893c64a8-c7be-47ad-bbbd-188bddcc1bdb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1900fd3686f06599f11b214fb3b5830bd1fe01c77f88683415e8b2de3038fd3e"
+  },
+  "id": "iOcyBDMbjZXhEi27",
+  "tags": []
+}
